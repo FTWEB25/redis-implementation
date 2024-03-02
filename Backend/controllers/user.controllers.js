@@ -1,4 +1,5 @@
 const { verify, hashing } = require("../config/bcrypt");
+const redis = require("../config/redis");
 const { generateToken } = require("../config/token");
 const UserModel = require("../models/user.model");
 
@@ -24,6 +25,13 @@ const register = async (req, res) => {
       });
       const savedUser = await newUser.save();
       const token = generateToken(savedUser._id);
+      redis.set("token", token, "EX", 20, (err, reply) => {
+        if (err) {
+          console.error("Error setting token in Redis:", err);
+          return res.status(500).json({ msg: "Internal server error." });
+        }
+        console.log("Token set in Redis:", reply);
+      });
       res.status(201).json({
         message: "User registered successfully.",
         user: {
@@ -61,6 +69,13 @@ const login = async (req, res) => {
     }
 
     const token = generateToken(user._id);
+    redis.set("token", token, "EX", 20, (err, reply) => {
+      if (err) {
+        console.error("Error setting token in Redis:", err);
+        return res.status(500).json({ msg: "Internal server error." });
+      }
+      console.log("Token set in Redis:", reply);
+    });
     return res.status(200).json({
       message: "Login successful",
       user: {
