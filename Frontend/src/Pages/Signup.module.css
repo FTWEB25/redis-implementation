@@ -1,0 +1,10 @@
+
+.formCont {
+  border: 2px solid red;
+}
+.form{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 10px;
+}
