@@ -1,20 +1,53 @@
-import React from 'react'
-import styles from "./MoviePage.module.css"
+import React, { useEffect, useState } from "react";
+import styles from "./MoviePage.module.css";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function MoviePage() {
+  const navigate = useNavigate();
+  const [movies, setMovies] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const getMovies = async () => {
+    setIsLoading(true);
+    try {
+      const response = await axios.get("http://localhost:8080/movies");
+      setIsLoading(false);
+      if (
+        response.status == 200 &&
+        response.data.msg === "Please login first"
+      ) {
+        navigate("/login");
+      } else if (response.status == 200) {
+        setMovies(response.data.msg);
+      } else {
+        navigate("/error");
+      }
+    } catch (error) {
+      setIsLoading(false);
+      console.log(error.message);
+    }
+  };
+  useEffect(() => {
+    getMovies();
+  }, []);
   return (
     <div>
-      <div className={styles.card}>
-        <img
-          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRZCI95u-fZcoeAOoWowNh3EPIIS6rmdyWr1g&usqp=CAU"
-          alt="movie"
-        />
-        <h3>MovieName:-</h3>
-        <p>Genre:-Horror</p>
-        <p>Rating:-9.2</p>
-      </div>
+      {isLoading ? (
+        <div>LOADING.....</div>
+      ) : movies.length == 0 ? (
+        <div>No movies yet</div>
+      ) : (
+        movies.map((movie) => (
+          <div className={styles.card} key={movie.id}>
+            <img src={movie.image} alt={movie.title} />
+            <h3>MovieName: {movie.title}</h3>
+            <p>Genre: {movie.genre}</p>
+            <p>Rating: {movie.rating}</p>
+          </div>
+        ))
+      )}
     </div>
   );
 }
 
-export default MoviePage
+export default MoviePage;

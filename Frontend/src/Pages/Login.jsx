@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import styles from "./Signup.module.css";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 function Login() {
+  const navigate=useNavigate()
   const [formData,setFormData]=useState({
     email:"",
     password:""
@@ -13,7 +15,9 @@ function Login() {
     e.preventDefault()
     try {
       const response=await axios.post("http://localhost:8080/users/login",formData)
-      console.log(response.data)
+      if(response.status===200){
+         navigate("/movie")
+      }
     } catch (error) {
       console.log(error.messgae)
     }
